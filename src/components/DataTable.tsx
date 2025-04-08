@@ -12,6 +12,7 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import { DataGrid, GridColDef, GridSortModel, GridCellEditStopParams } from '@mui/x-data-grid';
+import { motion } from 'framer-motion';
 
 interface Row {
   id: number | string;
@@ -24,6 +25,34 @@ interface Props {
   dbType?: string;
   isDarkMode: boolean;
   setIsDarkMode: (value: boolean) => void;
+}
+
+function FloatingPaths({ position }: { position: number }) {
+  const paths = Array.from({ length: 36 }, (_, i) => ({
+    id: i,
+    d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position} -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${152 - i * 5 * position} ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${684 - i * 5 * position} ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
+    color: `rgba(${position === 1 ? '15,23,42' : '209,213,219'},${0.1 + i * 0.03})`,
+    width: 0.5 + i * 0.03,
+  }));
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      <svg className="w-full h-full" viewBox="0 0 696 316" fill="none">
+        {paths.map((path) => (
+          <motion.path
+            key={path.id}
+            d={path.d}
+            stroke={position === 1 ? '#0F172A' : '#D1D5DB'}
+            strokeWidth={path.width}
+            strokeOpacity={0.1 + path.id * 0.03}
+            initial={{ pathLength: 0.3, opacity: 0.6 }}
+            animate={{ pathLength: 1, opacity: [0.3, 0.6, 0.3], pathOffset: [0, 1, 0] }}
+            transition={{ duration: 20 + Math.random() * 10, repeat: Infinity, ease: 'linear' }}
+          />
+        ))}
+      </svg>
+    </div>
+  );
 }
 
 const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMode, setIsDarkMode }) => {
@@ -219,10 +248,12 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
 
   return (
     <Box
-      className={`h-[calc(100vh-64px)] w-full flex flex-col mt-2 ${
+      className={`h-[calc(100vh-64px)] w-full flex flex-col mt-2 relative ${
         isDarkMode ? 'bg-dark-bg text-dark-text' : 'bg-light-bg text-light-text'
       }`}
     >
+      <FloatingPaths position={1} />
+      <FloatingPaths position={-1} />
       <Box className="mb-2 px-2 flex flex-wrap gap-2">
         <TextField
           label="Search"
@@ -232,11 +263,11 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
           sx={{
             width: { xs: '100%', sm: 300 },
             '& .MuiOutlinedInput-root': {
-              backgroundColor: isDarkMode ? '#616161' : '#E0E0E0',
-              '&:hover fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
-              '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
+              backgroundColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+              '&:hover fieldset': { borderColor: isDarkMode ? '#7F9CF5' : '#374151' },
+              '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#A3BFFA' : '#4B5563' },
             },
-            '& .MuiInputLabel-root': { color: isDarkMode ? '#E0E0E0' : '#333333' },
+            '& .MuiInputLabel-root': { color: isDarkMode ? '#D1D5DB' : '#1F2937' },
           }}
         />
         {schemaColumns.map((col) =>
@@ -250,11 +281,11 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
               sx={{
                 width: { xs: '100%', sm: 200 },
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: isDarkMode ? '#616161' : '#E0E0E0',
-                  '&:hover fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
-                  '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
+                  backgroundColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                  '&:hover fieldset': { borderColor: isDarkMode ? '#7F9CF5' : '#374151' },
+                  '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#A3BFFA' : '#4B5563' },
                 },
-                '& .MuiInputLabel-root': { color: isDarkMode ? '#E0E0E0' : '#333333' },
+                '& .MuiInputLabel-root': { color: isDarkMode ? '#D1D5DB' : '#1F2937' },
               }}
             />
           ) : null
@@ -269,14 +300,14 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
             <FormControlLabel
               control={<Switch checked={jsonView} onChange={(e) => setJsonView(e.target.checked)} />}
               label="JSON View"
-              sx={{ color: isDarkMode ? '#E0E0E0' : '#333333' }}
+              sx={{ color: isDarkMode ? '#D1D5DB' : '#1F2937' }}
             />
           )}
           <Button
             variant="outlined"
             className={`${
               isDarkMode
-                ? 'bg-dark-primary text-dark-text border-dark-primary-hover hover:bg-dark-primary-hover'
+                ? 'bg-dark-primary text-dark-bg border-dark-primary-hover hover:bg-dark-primary-hover hover:text-dark-text'
                 : 'bg-light-primary text-light-bg border-light-primary-hover hover:bg-light-primary-hover'
             } hover:-translate-y-1 transition-all`}
             onClick={handleAddRowOpen}
@@ -287,7 +318,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
             variant="outlined"
             className={`${
               isDarkMode
-                ? 'bg-dark-primary text-dark-text border-dark-primary-hover hover:bg-dark-primary-hover'
+                ? 'bg-dark-primary text-dark-bg border-dark-primary-hover hover:bg-dark-primary-hover hover:text-dark-text'
                 : 'bg-light-primary text-light-bg border-light-primary-hover hover:bg-light-primary-hover'
             } hover:-translate-y-1 transition-all`}
             onClick={onRefresh}
@@ -310,7 +341,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
             variant="outlined"
             className={`${
               isDarkMode
-                ? 'bg-dark-secondary text-dark-text border-dark-primary hover:bg-dark-primary'
+                ? 'bg-dark-secondary text-dark-text border-dark-primary hover:bg-dark-primary hover:text-dark-bg'
                 : 'bg-light-secondary text-light-text border-light-primary hover:bg-light-primary'
             } hover:-translate-y-1 transition-all`}
             onClick={() => handleExport('csv')}
@@ -321,14 +352,13 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
             variant="outlined"
             className={`${
               isDarkMode
-                ? 'bg-dark-secondary text-dark-text border-dark-primary hover:bg-dark-primary'
+                ? 'bg-dark-secondary text-dark-text border-dark-primary hover:bg-dark-primary hover:text-dark-bg'
                 : 'bg-light-secondary text-light-text border-light-primary hover:bg-light-primary'
             } hover:-translate-y-1 transition-all`}
             onClick={() => handleExport('json')}
           >
             Export to JSON
           </Button>
-          {/* Switch Toggle Moved Here */}
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
@@ -352,7 +382,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
       </Box>
       {dbType === 'mongodb' && jsonView ? (
         <Box
-          className={`flex-grow overflow-auto p-2 ${isDarkMode ? 'bg-dark-secondary' : 'bg-light-secondary'}`}
+          className={`flex-grow overflow-auto p-2 ${isDarkMode ? 'bg-dark-secondary text-dark-text' : 'bg-light-secondary text-light-text'}`}
         >
           <pre>{JSON.stringify(rows, null, 2)}</pre>
         </Box>
@@ -386,25 +416,30 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
             rowSelectionModel={selectedRows}
             sx={{
               height: '100%',
-              backgroundColor: isDarkMode ? '#424242' : '#F5F5F5',
+              backgroundColor: isDarkMode ? '#2D3748' : '#F9FAFB',
               '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: isDarkMode ? '#616161' : '#E0E0E0',
+                backgroundColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                color: isDarkMode ? '#D1D5DB' : '#1F2937',
               },
               '& .MuiDataGrid-cell': {
-                color: isDarkMode ? '#E0E0E0' : '#333333',
+                color: isDarkMode ? '#D1D5DB' : '#1F2937',
               },
               '& .MuiDataGrid-row:hover': {
-                backgroundColor: isDarkMode ? '#42A5F5' : '#1565C0',
+                backgroundColor: isDarkMode ? '#4B5563' : '#D1D5DB',
+                color: isDarkMode ? '#E5E7EB' : '#1F2937',
+              },
+              '& .MuiCheckbox-root': {
+                color: isDarkMode ? '#A3BFFA' : '#4B5563',
               },
             }}
           />
         </Box>
       )}
       <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
-        <DialogTitle sx={{ bgcolor: isDarkMode ? '#424242' : '#F5F5F5', color: isDarkMode ? '#E0E0E0' : '#333333' }}>
+        <DialogTitle sx={{ bgcolor: isDarkMode ? '#2D3748' : '#F9FAFB', color: isDarkMode ? '#D1D5DB' : '#1F2937' }}>
           Add New Row to {selectedTable}
         </DialogTitle>
-        <DialogContent sx={{ bgcolor: isDarkMode ? '#424242' : '#F5F5F5' }}>
+        <DialogContent sx={{ bgcolor: isDarkMode ? '#2D3748' : '#F9FAFB' }}>
           {columns.map((col) =>
             col.field !== 'id' && col.field !== '_id' ? (
               <TextField
@@ -418,17 +453,17 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
                 margin="normal"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: isDarkMode ? '#616161' : '#E0E0E0',
-                    '&:hover fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
-                    '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
+                    backgroundColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+                    '&:hover fieldset': { borderColor: isDarkMode ? '#7F9CF5' : '#374151' },
+                    '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#A3BFFA' : '#4B5563' },
                   },
-                  '& .MuiInputLabel-root': { color: isDarkMode ? '#E0E0E0' : '#333333' },
+                  '& .MuiInputLabel-root': { color: isDarkMode ? '#D1D5DB' : '#1F2937' },
                 }}
               />
             ) : null
           )}
         </DialogContent>
-        <DialogActions sx={{ bgcolor: isDarkMode ? '#424242' : '#F5F5F5' }}>
+        <DialogActions sx={{ bgcolor: isDarkMode ? '#2D3748' : '#F9FAFB' }}>
           <Button
             onClick={() => setOpenAddDialog(false)}
             className={isDarkMode ? 'text-dark-text' : 'text-light-text'}
@@ -439,7 +474,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
             onClick={handleAddRowSubmit}
             className={`${
               isDarkMode
-                ? 'bg-dark-primary text-dark-text hover:bg-dark-primary-hover'
+                ? 'bg-dark-primary text-dark-bg hover:bg-dark-primary-hover hover:text-dark-text'
                 : 'bg-light-primary text-light-bg hover:bg-light-primary-hover'
             } hover:-translate-y-1 transition-all`}
           >

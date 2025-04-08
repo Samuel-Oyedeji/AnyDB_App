@@ -1,25 +1,25 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        // Light Mode
+        // Light Mode (Unchanged)
         'light-bg': '#FFFFFF',
-        'light-secondary': '#F5F5F5',
-        'light-text': '#333333',
-        'light-primary': '#1976D2',
-        'light-primary-hover': '#1565C0',
-        'light-border': '#E0E0E0',
-        // Dark Mode
-        'dark-bg': '#212121',
-        'dark-secondary': '#424242',
-        'dark-text': '#E0E0E0',
-        'dark-primary': '#64B5F6',
-        'dark-primary-hover': '#42A5F5',
-        'dark-border': '#616161',
+        'light-secondary': '#F9FAFB',
+        'light-text': '#1F2937',
+        'light-primary': '#4B5563',
+        'light-primary-hover': '#374151',
+        'light-border': '#E5E7EB',
+        'light-path': '#0F172A',
+        // Dark Mode (Adjusted)
+        'dark-bg': '#171717',
+        'dark-secondary': '#2D3748', // Lightened from #1F2937
+        'dark-text': '#D1D5DB',
+        'dark-primary': '#A3BFFA', // Shifted to indigo
+        'dark-primary-hover': '#7F9CF5', // Indigo hover
+        'dark-border': '#4B5563', // Lightened from #374151
+        'dark-path': '#D1D5DB',
       },
     },
   },

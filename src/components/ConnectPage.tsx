@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const databases = ['MySQL', 'PostgreSQL', 'Mongo'];
 
@@ -8,6 +8,74 @@ interface ConnectionFormProps {
   isDarkMode: boolean;
   setIsDarkMode: (value: boolean) => void;
 }
+
+function FloatingPaths({ position }: { position: number }) {
+  const paths = Array.from({ length: 36 }, (_, i) => ({
+    id: i,
+    d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position} -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${152 - i * 5 * position} ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${684 - i * 5 * position} ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
+    color: `rgba(${position === 1 ? '15,23,42' : '209,213,219'},${0.1 + i * 0.03})`,
+    width: 0.5 + i * 0.03,
+  }));
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      <svg className="w-full h-full" viewBox="0 0 696 316" fill="none">
+        {paths.map((path) => (
+          <motion.path
+            key={path.id}
+            d={path.d}
+            stroke={position === 1 ? '#0F172A' : '#D1D5DB'}
+            strokeWidth={path.width}
+            strokeOpacity={0.1 + path.id * 0.03}
+            initial={{ pathLength: 0.3, opacity: 0.6 }}
+            animate={{ pathLength: 1, opacity: [0.3, 0.6, 0.3], pathOffset: [0, 1, 0] }}
+            transition={{ duration: 20 + Math.random() * 10, repeat: Infinity, ease: 'linear' }}
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+const TypingText: React.FC<{ text: string; isDarkMode: boolean }> = ({ text, isDarkMode }) => {
+  const characters = text.split('');
+
+  return (
+    <motion.span
+      className={`inline-block font-extrabold ${isDarkMode ? 'text-dark-primary' : 'text-light-primary'}`}
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: 0.1,
+          },
+        },
+      }}
+    >
+      {characters.map((char, index) => (
+        <motion.span
+          key={index}
+          variants={{
+            hidden: { opacity: 0, width: 0 },
+            visible: {
+              opacity: 1,
+              width: 'auto',
+              transition: {
+                duration: 1.5,
+                ease: 'easeInOut',
+              },
+            },
+          }}
+        >
+          {char}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+};
 
 const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDarkMode, setIsDarkMode }) => {
   const [currentDbIndex, setCurrentDbIndex] = useState(0);
@@ -23,7 +91,7 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentDbIndex((prev) => (prev + 1) % databases.length);
-    }, 2000);
+    }, 6000); // Slower interval to allow typing animation to complete
     return () => clearInterval(interval);
   }, []);
 
@@ -58,11 +126,12 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
 
   return (
     <div
-      className={`min-h-screen flex flex-col items-center justify-center p-5 md:p-10 relative overflow-hidden transition-colors duration-300 ${
+      className={`min-h-screen flex flex-col items-center justify-center p-5 md:p-10 relative overflow-hidden ${
         isDarkMode ? 'bg-dark-bg text-dark-text' : 'bg-light-bg text-light-text'
       }`}
     >
-      {/* Switch Toggle */}
+      <FloatingPaths position={1} />
+      <FloatingPaths position={-1} />
       <div className="absolute top-5 right-5 z-20">
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -84,46 +153,18 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
           </div>
         </label>
       </div>
-
-      {/* Background Video Placeholder */}
-      <video
-        className="video-bg"
-        autoPlay
-        loop
-        muted
-        src="/db-animation.mp4" // Replace with your video path
-      >
-        Your browser does not support the video tag.
-      </video>
-
-      {/* Page Title */}
       <motion.h1
-        className={`text-3xl md:text-4xl font-bold mb-10 text-center z-10 ${
-          isDarkMode ? 'text-dark-primary' : 'text-light-primary'
-        }`}
+        className={`text-3xl md:text-4xl font-bold mb-10 text-center z-10 ${isDarkMode ? 'text-dark-text' : 'text-light-text'}`}
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
-        style={{ fontFamily: "'Playfair Display', serif" }}
+        style={{ fontFamily: "'Roboto', sans-serif" }}
       >
         Seamless connection to your{' '}
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={currentDbIndex}
-            className={`font-bold ${isDarkMode ? 'text-dark-primary-hover' : 'text-light-primary-hover'}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-          >
-            {databases[currentDbIndex]}
-          </motion.span>
-        </AnimatePresence>
+        <TypingText text={databases[currentDbIndex]} isDarkMode={isDarkMode} />
         <br />
         Database
       </motion.h1>
-
-      {/* Form Container */}
       <div
         className={`w-[550px] p-8 rounded-2xl shadow-lg border z-10 ${
           isDarkMode ? 'bg-dark-secondary border-dark-border' : 'bg-light-secondary border-light-border'
@@ -145,7 +186,6 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
             <option value="postgres">PostgreSQL</option>
             <option value="mongodb">MongoDB</option>
           </select>
-
           <label className="mt-3 font-semibold">Host</label>
           <input
             type="text"
@@ -160,7 +200,6 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
             }`}
             required
           />
-
           <label className="mt-3 font-semibold">Port</label>
           <input
             type="text"
@@ -175,7 +214,6 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
             }`}
             required
           />
-
           <label className="mt-3 font-semibold">Username</label>
           <input
             type="text"
@@ -190,7 +228,6 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
             }`}
             required
           />
-
           <label className="mt-3 font-semibold">Password</label>
           <input
             type="password"
@@ -205,7 +242,6 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
             }`}
             required
           />
-
           <label className="mt-3 font-semibold">Database</label>
           <input
             type="text"
@@ -220,7 +256,6 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
             }`}
             required
           />
-
           <button
             type="submit"
             className={`mt-6 p-3 rounded-xl font-bold shadow-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ${

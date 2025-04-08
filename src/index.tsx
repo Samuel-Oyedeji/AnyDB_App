@@ -9,10 +9,10 @@ import { AppProvider } from './context/AppContext';
 const lightTheme = createTheme({
   palette: {
     mode: 'light',
-    primary: { main: '#1976D2', contrastText: '#FFFFFF' },
-    secondary: { main: '#F5F5F5', contrastText: '#333333' },
-    background: { default: '#FFFFFF', paper: '#F5F5F5' },
-    text: { primary: '#333333' },
+    primary: { main: '#4B5563', contrastText: '#FFFFFF' },
+    secondary: { main: '#F9FAFB', contrastText: '#1F2937' },
+    background: { default: '#FFFFFF', paper: '#F9FAFB' },
+    text: { primary: '#1F2937' },
   },
   components: {
     MuiButton: {
@@ -26,10 +26,10 @@ const lightTheme = createTheme({
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
-    primary: { main: '#64B5F6', contrastText: '#212121' },
-    secondary: { main: '#424242', contrastText: '#E0E0E0' },
-    background: { default: '#212121', paper: '#424242' },
-    text: { primary: '#E0E0E0' },
+    primary: { main: '#9CA3AF', contrastText: '#171717' },
+    secondary: { main: '#1F2937', contrastText: '#D1D5DB' },
+    background: { default: '#171717', paper: '#1F2937' },
+    text: { primary: '#D1D5DB' },
   },
   components: {
     MuiButton: {
@@ -58,7 +58,7 @@ root.render(
   <React.StrictMode>
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@700&display=swap"
     />
     <AppWithTheme />
   </React.StrictMode>
