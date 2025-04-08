@@ -22,9 +22,11 @@ interface Props {
   selectedTable: string;
   onRefresh: () => void;
   dbType?: string;
+  isDarkMode: boolean;
+  setIsDarkMode: (value: boolean) => void;
 }
 
-const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType }) => {
+const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMode, setIsDarkMode }) => {
   const [columns, setColumns] = useState<GridColDef[]>([]);
   const [rows, setRows] = useState<Row[]>([]);
   const [totalRows, setTotalRows] = useState(0);
@@ -51,7 +53,6 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType }) => {
       }
     } catch (error: any) {
       console.error('Schema fetch failed:', error.message);
-      // Don’t alert here—let fetchTableData handle display
       setSchemaColumns([]);
     }
   };
@@ -100,7 +101,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType }) => {
   useEffect(() => {
     if (selectedTable) {
       fetchSchemaColumns();
-      fetchTableData(); // Run immediately, don’t wait for schemaColumns
+      fetchTableData();
     }
   }, [selectedTable]);
 
@@ -217,69 +218,152 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType }) => {
   };
 
   return (
-    <Box sx={{ mt: 2 }}>
-      <Box sx={{ mb: 2 }}>
+    <Box
+      className={`h-[calc(100vh-64px)] w-full flex flex-col mt-2 ${
+        isDarkMode ? 'bg-dark-bg text-dark-text' : 'bg-light-bg text-light-text'
+      }`}
+    >
+      <Box className="mb-2 px-2 flex flex-wrap gap-2">
         <TextField
           label="Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           variant="outlined"
-          sx={{ mr: 2, width: 300 }}
+          sx={{
+            width: { xs: '100%', sm: 300 },
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: isDarkMode ? '#616161' : '#E0E0E0',
+              '&:hover fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
+              '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
+            },
+            '& .MuiInputLabel-root': { color: isDarkMode ? '#E0E0E0' : '#333333' },
+          }}
         />
-        {schemaColumns.map((col) => (
-          col !== 'id' && col !== '_id' && (
+        {schemaColumns.map((col) =>
+          col !== 'id' && col !== '_id' ? (
             <TextField
               key={col}
               label={`Filter ${col.charAt(0).toUpperCase() + col.slice(1)}`}
               value={filters[col] || ''}
               onChange={(e) => handleFilterChange(col, e.target.value)}
               variant="outlined"
-              sx={{ mr: 2, width: 200 }}
+              sx={{
+                width: { xs: '100%', sm: 200 },
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: isDarkMode ? '#616161' : '#E0E0E0',
+                  '&:hover fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
+                  '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
+                },
+                '& .MuiInputLabel-root': { color: isDarkMode ? '#E0E0E0' : '#333333' },
+              }}
             />
-          )
-        ))}
+          ) : null
+        )}
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="subtitle1" color="#1976d2">
+      <Box className="px-2 flex justify-between items-center mb-2">
+        <Typography variant="subtitle1" className={isDarkMode ? 'text-dark-primary' : 'text-light-primary'}>
           Data for {selectedTable}
         </Typography>
-        <Box>
+        <Box className="flex gap-1 flex-wrap items-center">
           {dbType === 'mongodb' && (
             <FormControlLabel
               control={<Switch checked={jsonView} onChange={(e) => setJsonView(e.target.checked)} />}
               label="JSON View"
-              sx={{ mr: 2 }}
+              sx={{ color: isDarkMode ? '#E0E0E0' : '#333333' }}
             />
           )}
-          <Button variant="outlined" color="primary" onClick={handleAddRowOpen} sx={{ mr: 1 }}>
+          <Button
+            variant="outlined"
+            className={`${
+              isDarkMode
+                ? 'bg-dark-primary text-dark-text border-dark-primary-hover hover:bg-dark-primary-hover'
+                : 'bg-light-primary text-light-bg border-light-primary-hover hover:bg-light-primary-hover'
+            } hover:-translate-y-1 transition-all`}
+            onClick={handleAddRowOpen}
+          >
             Add Row
           </Button>
-          <Button variant="outlined" color="primary" onClick={onRefresh} sx={{ mr: 1 }}>
+          <Button
+            variant="outlined"
+            className={`${
+              isDarkMode
+                ? 'bg-dark-primary text-dark-text border-dark-primary-hover hover:bg-dark-primary-hover'
+                : 'bg-light-primary text-light-bg border-light-primary-hover hover:bg-light-primary-hover'
+            } hover:-translate-y-1 transition-all`}
+            onClick={onRefresh}
+          >
             Refresh
           </Button>
-          <Button variant="outlined" color="error" onClick={handleDeleteRows} disabled={selectedRows.length === 0} sx={{ mr: 1 }}>
+          <Button
+            variant="outlined"
+            className={`${
+              isDarkMode
+                ? 'bg-red-900 text-dark-text border-red-800 hover:bg-red-800'
+                : 'bg-red-500 text-light-bg border-red-400 hover:bg-red-400'
+            } hover:-translate-y-1 transition-all`}
+            onClick={handleDeleteRows}
+            disabled={selectedRows.length === 0}
+          >
             Delete Selected ({selectedRows.length})
           </Button>
-          <Button variant="outlined" color="secondary" onClick={() => handleExport('csv')} sx={{ mr: 1 }}>
+          <Button
+            variant="outlined"
+            className={`${
+              isDarkMode
+                ? 'bg-dark-secondary text-dark-text border-dark-primary hover:bg-dark-primary'
+                : 'bg-light-secondary text-light-text border-light-primary hover:bg-light-primary'
+            } hover:-translate-y-1 transition-all`}
+            onClick={() => handleExport('csv')}
+          >
             Export to CSV
           </Button>
-          <Button variant="outlined" color="secondary" onClick={() => handleExport('json')}>
+          <Button
+            variant="outlined"
+            className={`${
+              isDarkMode
+                ? 'bg-dark-secondary text-dark-text border-dark-primary hover:bg-dark-primary'
+                : 'bg-light-secondary text-light-text border-light-primary hover:bg-light-primary'
+            } hover:-translate-y-1 transition-all`}
+            onClick={() => handleExport('json')}
+          >
             Export to JSON
           </Button>
+          {/* Switch Toggle Moved Here */}
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isDarkMode}
+              onChange={() => setIsDarkMode(!isDarkMode)}
+              className="sr-only"
+            />
+            <div
+              className={`w-11 h-6 rounded-full transition-colors duration-300 ${
+                isDarkMode ? 'bg-dark-primary' : 'bg-light-primary'
+              }`}
+            >
+              <div
+                className={`w-5 h-5 bg-light-bg rounded-full shadow-md transform transition-transform duration-300 ${
+                  isDarkMode ? 'translate-x-5' : 'translate-x-1'
+                }`}
+              />
+            </div>
+          </label>
         </Box>
       </Box>
       {dbType === 'mongodb' && jsonView ? (
-        <Box sx={{ height: 400, width: '100%', overflow: 'auto', bgcolor: '#f5f5f5', p: 2 }}>
+        <Box
+          className={`flex-grow overflow-auto p-2 ${isDarkMode ? 'bg-dark-secondary' : 'bg-light-secondary'}`}
+        >
           <pre>{JSON.stringify(rows, null, 2)}</pre>
         </Box>
       ) : (
-        <Box sx={{ height: 400, width: '100%' }}>
+        <Box className="flex-grow w-full">
           <DataGrid
             rows={rows}
             columns={columns}
             rowCount={totalRows}
             paginationMode="server"
-            pageSizeOptions={[5, 10, 20]}
+            pageSizeOptions={[10, 20, 50]}
             paginationModel={{ page, pageSize }}
             onPaginationModelChange={(model) => {
               setPage(model.page);
@@ -289,35 +373,78 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType }) => {
             sortModel={sortModel}
             onSortModelChange={setSortModel}
             processRowUpdate={(newRow) => {
-              handleCellEditStop({ id: newRow.id, field: Object.keys(newRow)[1], value: Object.values(newRow)[1] } as GridCellEditStopParams);
+              handleCellEditStop({
+                id: newRow.id,
+                field: Object.keys(newRow)[1],
+                value: Object.values(newRow)[1],
+              } as GridCellEditStopParams);
               return newRow;
             }}
             onCellEditStop={handleCellEditStop}
             checkboxSelection
             onRowSelectionModelChange={(newSelection) => setSelectedRows(newSelection as string[])}
             rowSelectionModel={selectedRows}
+            sx={{
+              height: '100%',
+              backgroundColor: isDarkMode ? '#424242' : '#F5F5F5',
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: isDarkMode ? '#616161' : '#E0E0E0',
+              },
+              '& .MuiDataGrid-cell': {
+                color: isDarkMode ? '#E0E0E0' : '#333333',
+              },
+              '& .MuiDataGrid-row:hover': {
+                backgroundColor: isDarkMode ? '#42A5F5' : '#1565C0',
+              },
+            }}
           />
         </Box>
       )}
       <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
-        <DialogTitle>Add New Row to {selectedTable}</DialogTitle>
-        <DialogContent>
-          {columns.map((col) => (
-            (col.field !== 'id' && col.field !== '_id') && (
+        <DialogTitle sx={{ bgcolor: isDarkMode ? '#424242' : '#F5F5F5', color: isDarkMode ? '#E0E0E0' : '#333333' }}>
+          Add New Row to {selectedTable}
+        </DialogTitle>
+        <DialogContent sx={{ bgcolor: isDarkMode ? '#424242' : '#F5F5F5' }}>
+          {columns.map((col) =>
+            col.field !== 'id' && col.field !== '_id' ? (
               <TextField
                 key={col.field}
                 label={col.headerName}
                 value={newRowData[col.field] || ''}
-                onChange={(e) => setNewRowData((prev) => ({ ...prev, [col.field]: e.target.value }))}
+                onChange={(e) =>
+                  setNewRowData((prev) => ({ ...prev, [col.field]: e.target.value }))
+                }
                 fullWidth
                 margin="normal"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: isDarkMode ? '#616161' : '#E0E0E0',
+                    '&:hover fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
+                    '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#42A5F5' : '#1565C0' },
+                  },
+                  '& .MuiInputLabel-root': { color: isDarkMode ? '#E0E0E0' : '#333333' },
+                }}
               />
-            )
-          ))}
+            ) : null
+          )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAddDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddRowSubmit} color="primary">Add</Button>
+        <DialogActions sx={{ bgcolor: isDarkMode ? '#424242' : '#F5F5F5' }}>
+          <Button
+            onClick={() => setOpenAddDialog(false)}
+            className={isDarkMode ? 'text-dark-text' : 'text-light-text'}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddRowSubmit}
+            className={`${
+              isDarkMode
+                ? 'bg-dark-primary text-dark-text hover:bg-dark-primary-hover'
+                : 'bg-light-primary text-light-bg hover:bg-light-primary-hover'
+            } hover:-translate-y-1 transition-all`}
+          >
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { Box, CssBaseline, AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemText } from '@mui/material';
-import ConnectionForm from './components/ConnectionForm';
+import ConnectPage from './components/ConnectPage';
 import DataTable from './components/DataTable';
 
 const drawerWidth = 240;
 
-const App: React.FC = () => {
+interface AppProps {
+  isDarkMode: boolean;
+  setIsDarkMode: (value: boolean) => void;
+}
+
+const App: React.FC<AppProps> = ({ isDarkMode, setIsDarkMode }) => {
+  const [isConnected, setIsConnected] = useState(false);
   const [tables, setTables] = useState<string[]>([]);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [dbType, setDbType] = useState<string | undefined>(undefined);
@@ -14,12 +20,17 @@ const App: React.FC = () => {
     setTables(tables);
     setSelectedTable(tables[0] || null);
     setDbType(dbType);
+    setIsConnected(true);
   };
 
   const handleRefresh = () => {
     setSelectedTable(null);
     setTimeout(() => setSelectedTable(selectedTable), 0);
   };
+
+  if (!isConnected) {
+    return <ConnectPage onConnectionSuccess={handleConnectionSuccess} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />;
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -41,7 +52,6 @@ const App: React.FC = () => {
       >
         <Toolbar />
         <Box sx={{ overflow: 'auto' }}>
-          <ConnectionForm onConnectionSuccess={handleConnectionSuccess} />
           <List>
             {tables.map((table) => (
               <ListItemButton
@@ -57,7 +67,15 @@ const App: React.FC = () => {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
-        {selectedTable && <DataTable selectedTable={selectedTable} onRefresh={handleRefresh} dbType={dbType} />}
+        {selectedTable && (
+          <DataTable
+            selectedTable={selectedTable}
+            onRefresh={handleRefresh}
+            dbType={dbType}
+            isDarkMode={isDarkMode}
+            setIsDarkMode={setIsDarkMode}
+          />
+        )}
       </Box>
     </Box>
   );
