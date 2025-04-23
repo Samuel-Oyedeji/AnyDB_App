@@ -91,7 +91,7 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentDbIndex((prev) => (prev + 1) % databases.length);
-    }, 6000); // Slower interval to allow typing animation to complete
+    }, 6000);
     return () => clearInterval(interval);
   }, []);
 
@@ -107,7 +107,7 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
 
   const handleConnect = async () => {
     try {
-      const response = await fetch('http://localhost:5000/connect', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/connect`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

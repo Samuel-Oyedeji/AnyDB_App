@@ -72,7 +72,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
 
   const fetchSchemaColumns = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/columns/${selectedTable}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/columns/${selectedTable}`);
       const data = await response.json();
       if (data.columns && data.columns.length > 0) {
         setSchemaColumns(data.columns);
@@ -90,7 +90,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
     try {
       const sortField = sortModel[0]?.field;
       const sortOrder = sortModel[0]?.sort?.toUpperCase() || 'ASC';
-      const url = new URL(`http://localhost:5000/data/${selectedTable}`);
+      const url = new URL(`${process.env.REACT_APP_API_URL}/data/${selectedTable}`);
       url.searchParams.append('limit', pageSize.toString());
       url.searchParams.append('offset', (page * pageSize).toString());
       if (sortField) {
@@ -147,7 +147,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
 
     try {
       const updatedRow = { [field]: value };
-      const response = await fetch(`http://localhost:5000/data/${selectedTable}/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/data/${selectedTable}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedRow),
@@ -177,7 +177,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
 
   const handleAddRowSubmit = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/data/${selectedTable}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/data/${selectedTable}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newRowData),
@@ -198,7 +198,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
   const handleDeleteRows = async () => {
     if (selectedRows.length === 0) return;
     try {
-      const response = await fetch(`http://localhost:5000/data/${selectedTable}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/data/${selectedTable}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedRows }),
@@ -219,7 +219,7 @@ const DataTable: React.FC<Props> = ({ selectedTable, onRefresh, dbType, isDarkMo
 
   const handleExport = async (format: 'csv' | 'json') => {
     try {
-      const response = await fetch(`http://localhost:5000/export/${selectedTable}?format=${format}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/export/${selectedTable}?format=${format}`);
       if (!response.ok) throw new Error('Export failed');
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
