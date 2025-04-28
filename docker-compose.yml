@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  appfe:
+    build: .
+    ports:
+      - "3000:3000"
+    networks:
+      - my_shared_network
+
+networks:
+  my_shared_network:
+    external: true
