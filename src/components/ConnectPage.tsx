@@ -154,7 +154,7 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
         </label>
       </div>
       <motion.h1
-        className={`text-3xl md:text-4xl font-bold mb-10 text-center z-10 ${isDarkMode ? 'text-dark-text' : 'text-light-text'}`}
+        className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-10 text-center z-10 ${isDarkMode ? 'text-dark-text' : 'text-light-text'}`}
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -166,7 +166,7 @@ const ConnectPage: React.FC<ConnectionFormProps> = ({ onConnectionSuccess, isDar
         Database
       </motion.h1>
       <div
-        className={`w-[550px] p-8 rounded-2xl shadow-lg border z-10 ${
+        className={`w-full max-w-md sm:max-w-lg p-8 rounded-2xl shadow-lg border z-10 ${
           isDarkMode ? 'bg-dark-secondary border-dark-border' : 'bg-light-secondary border-light-border'
         }`}
       >
